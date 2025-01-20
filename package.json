@@ -1,0 +1,23 @@
+{
+  "name": "prg-06-sportitems-webservice",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kasperdejong/prg-06-sportitems-webservice.git"
+  },
+  "author": "Kasper",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kasperdejong/prg-06-sportitems-webservice/issues"
+  },
+  "homepage": "https://github.com/Kasperdejong/prg-06-sportitems-webservice#readme",
+  "description": "",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
