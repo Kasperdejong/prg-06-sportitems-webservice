@@ -4,18 +4,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node --env-file=.env --watch index.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Kasperdejong/prg-06-sportitems-webservice.git"
-  },
-  "author": "Kasper",
+  "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Kasperdejong/prg-06-sportitems-webservice/issues"
-  },
-  "homepage": "https://github.com/Kasperdejong/prg-06-sportitems-webservice#readme",
   "description": "",
   "dependencies": {
     "@faker-js/faker": "^9.4.0",
