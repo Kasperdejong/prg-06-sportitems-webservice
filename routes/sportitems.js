@@ -132,7 +132,7 @@ router.post('/', async (req, res) => {
         });
     } catch (e) {
         console.error(e);
-        res.status(500).json({error: e.message});
+        res.status(400).json({error: e.message});
     }
 });
 
