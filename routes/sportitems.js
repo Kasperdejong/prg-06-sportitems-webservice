@@ -15,8 +15,8 @@ router.options('/', (req, res) => {
 })
 
 router.options('/:id', (req, res) => {
-    res.header('Allow', 'GET,PUT,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,DELETE,OPTIONS');
+    res.header('Allow', 'GET,PUT,PATCH,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,PATCH,DELETE,OPTIONS');
     res.status(204).send();
 })
 
@@ -25,6 +25,14 @@ router.get('/', async (req, res) => {
     let page;
     let previousPage;
     let pages;
+
+    const latestItem = await sportitem.findOne().sort('-updatedAt');
+    const lastModified = latestItem ? latestItem.updatedAt.toUTCString() : new Date().toUTCString();
+
+    const ifModifiedSince = req.headers['if-modified-since'];
+    if (ifModifiedSince && new Date(ifModifiedSince) >= new Date(lastModified)) {
+        return res.status(304).end();
+    }
 
     const amountGetter = await sportitem.find();
     const keyCount = Object.keys(amountGetter).length;
@@ -48,6 +56,8 @@ router.get('/', async (req, res) => {
     }
 
     const SportItem = await sportitem.find().limit(limit).skip(skip);
+
+    res.setHeader('Last-Modified', lastModified);
 
     res.json({
         items: SportItem,
@@ -90,16 +100,16 @@ router.get('/', async (req, res) => {
 router.post('/seed', async (req, res) => {
     try {
         console.log(req.body)
-        //Delete all items before adding new ones
         await Sportitem.deleteMany({});
 
 
         //Create new items
         for (let i = 0; i < req.body.amount; i++) {
             await Sportitem.create({
-                title: faker.word.adjective(),
+                title: faker.commerce.productName(),
                 description: faker.lorem.paragraph(3),
-                sport: faker.lorem.paragraph({min: 1, max: 5})
+                sport: faker.helpers.arrayElement(['Soccer', 'Basketball', 'Tennis', 'Running', 'Swimming', 'Cycling', 'Golf', 'Climbing', 'Curling', 'Skydiving']),
+                imageUrl: faker.image.url()
             })
         }
 
@@ -112,7 +122,7 @@ router.post('/seed', async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
-        const {title, description, sport} = req.body;
+        const {title, description, sport, imageUrl} = req.body;
 
         if (!title || !description || !sport) {
             return res.status(400).json({
@@ -124,6 +134,7 @@ router.post('/', async (req, res) => {
             title,
             description,
             sport,
+            imageUrl
         });
 
         res.status(201).json({
@@ -166,11 +177,38 @@ router.put('/:id', async (req, res) => {
     }
 });
 
+router.patch('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const newStuff = req.body;
+
+        const sportItem = await SportItem.findById(id);
+
+        if (!sportItem) {
+            return res.status(404).json({ error: 'Sportitem niet gevonden' });
+        }
+
+        if (newStuff.likes) {
+            sportItem.likes = sportItem.likes + 1; // Verhoog likes met 1
+        }
+
+        const patchedSportItem = await sportItem.save();
+
+        res.status(200).json({
+            message: 'Sportitem gedeeltelijk bijgewerkt',
+            sportItem: patchedSportItem
+        });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+
 router.delete('/:id', async (req, res) => {
     try {
         const {id} = req.params;
         await sportitem.findByIdAndDelete(id)
-        res.status(204).json({message: `JE ITEM IS GE DELETE!!!!`, succes: true})
+        res.status(204).json({message: `JE ITEM IS GEDELETE!!!!`, succes: true})
         console.log('DELETED!!!')
     } catch (error) {
         res.status(400).json({error: error.message})
